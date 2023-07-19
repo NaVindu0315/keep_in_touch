@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "442321214530",
+    "project_id": "keep-in-touch-2246e",
+    "storage_bucket": "keep-in-touch-2246e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:442321214530:android:e73c395d46c10ca08f61db",
+        "android_client_info": {
+          "package_name": "com.navindu.keep_in_touch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "442321214530-ck8ru6tlgkfi8nqpdg57jt2so9eapr9v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDf44uD9yMx0RjQSIrM6bU4w_kqOcH-HSk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "442321214530-ck8ru6tlgkfi8nqpdg57jt2so9eapr9v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
