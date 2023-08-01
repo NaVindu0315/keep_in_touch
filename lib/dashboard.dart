@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:keep_in_touch/eventlistview.dart';
 import 'package:keep_in_touch/login.dart';
+import 'package:keep_in_touch/newevent.dart';
 
 late User loggedinuser;
 late String client;
@@ -358,6 +360,60 @@ class _lec_dashboardState extends State<lec_dashboard> {
                                           ],
                                         ),
                                       ),
+                                      SizedBox(
+                                        height: 50.0,
+                                      ),
+                                      Container(
+                                          height: 60,
+                                          width: double.infinity,
+                                          padding: EdgeInsets.all(
+                                              8.0), // set the padding
+                                          decoration: BoxDecoration(
+                                            color: Colors
+                                                .white, // set the background color
+                                            borderRadius: BorderRadius.circular(
+                                                10.0), // set the border radius
+                                          ),
+                                          //: const Color(0xDBD6EFFF),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  // Add your action for the "List" button here
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            eventlist()),
+                                                  );
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  primary: Colors.blue,
+                                                ),
+                                                child: Text('List'),
+                                              ),
+                                              SizedBox(
+                                                  width:
+                                                      10), // Add some space between the buttons
+                                              ElevatedButton(
+                                                onPressed: () {
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            newevent()),
+                                                  );
+                                                  // Add your action for the "Add New" button here
+                                                },
+                                                style: ElevatedButton.styleFrom(
+                                                  primary: Colors.blue,
+                                                ),
+                                                child: Text('Add New'),
+                                              ),
+                                            ],
+                                          )),
 
                                       /////////
                                       /////////
@@ -365,80 +421,6 @@ class _lec_dashboardState extends State<lec_dashboard> {
                                     ],
                                   ),
                                 ),
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  Container(
-                                    margin: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Color(0xFF19589D),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        /* Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => TimeTable()),
-                                    );*/
-                                      },
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.schedule_rounded,
-                                            size: 50,
-                                            color: Colors.white,
-                                          ),
-                                          SizedBox(height: 10),
-                                          Text(
-                                            'Update TimeTable',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.all(10),
-                                    decoration: BoxDecoration(
-                                      color: Colors.blueGrey,
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: ElevatedButton(
-                                      onPressed: () {
-                                        /* Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => st_enroll()),
-                                    );*/
-                                      },
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: <Widget>[
-                                          Icon(
-                                            Icons.person_add,
-                                            size: 50,
-                                            color: Colors.white,
-                                          ),
-                                          SizedBox(height: 10),
-                                          Text(
-                                            'Enroll Student',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 18,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
                               ),
                             ],
                           ),

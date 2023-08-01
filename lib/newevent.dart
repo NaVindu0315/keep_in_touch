@@ -1,92 +1,114 @@
-import 'package:flutter/material.dart';
 import 'dart:io';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'dashboard.dart';
 
-void main() {}
+late BuildContext dialogcontext;
+
+late User loggedinuser;
+late String client;
+TextEditingController c1 = new TextEditingController();
+TextEditingController c2 = new TextEditingController();
+TextEditingController c3 = new TextEditingController();
 
 class newevent extends StatefulWidget {
+  late User loggedinuser;
+  late String client;
+
+  void main() {
+    runApp(newevent());
+  }
+
   @override
   State<newevent> createState() => _neweventState();
 }
 
 class _neweventState extends State<newevent> {
-  final storage = FirebaseStorage.instance;
-  final _auth = FirebaseAuth.instance;
-  final _firestore = FirebaseFirestore.instance;
+  static String id = 'addgempage';
+  final _formKey = GlobalKey<FormState>();
 
-  ///declaring variables
-  late String username;
-  late String email;
-  late String mobile;
-  late String address;
-  late String dob;
-  late String dad;
-  late String mom;
-
-  late String pw;
-  late String pw2;
-  late String iurl;
-
-  ///variales end
-  ///
-  ///function to set data to userfield
-  Future<void> addstudent(
-    String username,
-    String email,
-    String mobile,
-    String address,
-    String dob,
-
-    ///meka cut krpn
-    String thisurl,
-    String momname,
-    String dadname,
-  ) async {
-    // await _firestore.collection('userdetails').add({'email': email, 'pw': pw});
-    await FirebaseFirestore.instance.collection('students').doc(email).set({
-      'username': username,
-      'email': email,
-      'mobile': mobile,
-      'address': address,
-      'dob': dob,
-
-      ///meka cut krpn
-      'url': thisurl,
-      'mom': momname,
-      'dad': dadname,
-    });
+  @override
+  void initState() {
+    super.initState();
+    getcurrentuser();
   }
 
-  ///creating users function begin
-  void createstudent() async {
+  void getcurrentuser() async {
     try {
-      final newuser = await _auth.createUserWithEmailAndPassword(
-          email: email, password: pw);
+      // final user = await _auth.currentUser();
+      ///yata line eka chatgpt code ekk meka gatte uda line eke error ekk ena hinda hrytama scene eka terenne na
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        loggedinuser = user;
+        client = loggedinuser.email!;
 
-      ///call the add details function here
-      addstudent(username, email, mobile, address, dob, iurl, mom, dad);
+        ///i have to call the getdatafrm the function here and parse client as a parameter
 
-      if (newuser != null) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => lec_dashboard()),
-        );
+        print(loggedinuser.email);
       }
     } catch (e) {
       print(e);
     }
   }
 
-  ///creating users end
+  final storage = FirebaseStorage.instance;
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+  //final _firestore = FirebaseFirestore.instance;
+  var gemController = TextEditingController();
+  late String? title;
+  late String? date;
+  late String? description;
+
+  late String gemurl;
 
   File? _image;
-  Image myIcon = Image.asset('assets/ad.png');
+  Image myIcon = Image.asset('assets/img1.png');
+
+  ///add event
+  Future<void> addnwevent() async {
+    final gemsRef = _firestore.collection(client).doc(date);
+    gemsRef.set({
+      'gemurl': gemurl,
+      'title': title,
+      'date': date,
+      'description': description,
+    });
+
+    AlertDialog alert = AlertDialog(
+      title: Text("New Event Added"),
+      content:
+          Text("New Memory : $title created waiting for many more to come"),
+      actions: [
+        TextButton(
+          child: Text("OK"),
+          onPressed: () {
+            Navigator.of(context).pop();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => lec_dashboard()),
+            );
+          },
+        ),
+      ],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        dialogcontext = context;
+        return alert;
+      },
+    );
+    Navigator.of(dialogcontext).pop();
+  }
+
+  /// add event end
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -97,7 +119,7 @@ class _neweventState extends State<newevent> {
       final uploadTask = ref.putFile(File(pickedImage.path));
       final snapshot = await uploadTask.whenComplete(() {});
       final imageUrl = await snapshot.ref.getDownloadURL();
-      iurl = imageUrl;
+      gemurl = imageUrl;
       _image = File(pickedImage.path);
 
       setState(() {
@@ -106,266 +128,143 @@ class _neweventState extends State<newevent> {
     }
   }
 
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _confirmPasswordController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        backgroundColor: Colors.blue.shade100,
-        appBar: AppBar(
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new_outlined,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => lec_dashboard()),
-              );
-            },
-          ),
-          title: Text(
-            'Enroll new Student',
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          backgroundColor: Color(0xFF19589D),
-        ),
-        body: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: Colors.purple.shade100,
+      body: SafeArea(
+        child: SingleChildScrollView(
           reverse: true,
-          child: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Container(
+              margin: const EdgeInsets.all(10.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: <Widget>[
-                  ////for the image adding button
+                children: [
                   Row(
-                    children: <Widget>[
-                      SizedBox(
-                        width: 135.0,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Image(
+                          image: AssetImage("assets/img1.png"),
+                          width: 200, // Set the desired width of the image
+                          height: 150, // Set the desired height of the image
+                        ),
                       ),
-                      InkWell(
-                        onTap: _pickImage,
-                        child: CircleAvatar(
-                          backgroundColor: Colors.blue.shade100,
-                          radius: 50.0,
-                          backgroundImage:
-                              _image != null ? FileImage(_image!) : null,
-                          child: /*Image(
+                    ],
+                  ),
+
+                  InkWell(
+                    onTap: _pickImage,
+                    child: CircleAvatar(
+                      backgroundColor: Colors.deepPurpleAccent,
+                      radius: 50.0,
+                      backgroundImage:
+                          _image != null ? FileImage(_image!) : null,
+                      child: /*Image(
                             image: AssetImage('images/ad.png'),
                           ),*/
-                              _image == null
-                                  ? Image.asset('assets/img1.png')
-                                  : Image.file(_image!),
+                          _image == null
+                              ? Image.asset('assets/img1.png')
+                              : Image.file(_image!),
 
-                          /*IconButton(
+                      /*IconButton(
                               icon: myIcon,
                               onPressed: null,
                             ),*/
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 15.0,
-                  ),
-                  //username
-                  TextFormField(
-                    onChanged: (value) {
-                      username = value;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.person,
-                      ),
-                      labelText: 'Name',
-                      border: OutlineInputBorder(),
                     ),
                   ),
-                  //email
-                  TextFormField(
-                    onChanged: (value) {
-                      email = value;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.email,
-                      ),
-                      labelText: 'Email',
-                      border: OutlineInputBorder(),
+                  /*ElevatedButton.icon(
+                    icon: const Icon(
+                      Icons.add_circle,
+                      color: Colors.purple,
                     ),
-                  ),
-                  //mobile
-                  TextFormField(
-                    onChanged: (value) {
-                      mobile = value;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.phone,
-                      ),
-                      labelText: 'Mobile',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  //address
-                  TextFormField(
-                    onChanged: (value) {
-                      address = value;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.location_city,
-                      ),
-                      labelText: 'Address',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  //birthday
-                  TextFormField(
-                    onChanged: (value) {
-                      dob = value;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.calendar_today),
-                      ),
-                      labelText: 'Date of Birth',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  //mom
-                  TextFormField(
-                    onChanged: (value) {
-                      mom = value;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.woman),
-                      ),
-                      labelText: 'Mothers Name',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  //dad
-                  TextFormField(
-                    onChanged: (value) {
-                      dad = value;
-                    },
-                    decoration: InputDecoration(
-                      prefixIcon: IconButton(
-                        onPressed: null,
-                        icon: Icon(Icons.man),
-                      ),
-                      labelText: 'Fathers Name',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  //password
-                  TextFormField(
-                    controller: _passwordController,
-                    onChanged: (value) {
-                      pw = value;
-                    },
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.key,
-                      ),
-                      labelText: 'Password',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  //confirm Password
-                  TextFormField(
-                    controller: _confirmPasswordController,
-                    onChanged: (value) {
-                      pw2 = value;
-                      //_validatePassword(value);
-                    },
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      prefixIcon: Icon(
-                        Icons.key,
-                      ),
-                      labelText: 'Confirm Password',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 32.0,
-                  ),
-                  ElevatedButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Color(0xFF19589D))),
-                    onPressed: () {
-                      if (pw == pw2) {
-                        createstudent();
-                        AlertDialog alert = AlertDialog(
-                          title: Text("Succesful"),
-                          content: Text("New Student Added."),
-                          actions: [
-                            TextButton(
-                              child: Text("OK"),
-                              onPressed: () {
-                                MaterialPageRoute(
-                                    builder: (context) => lec_dashboard());
-                              },
-                            ),
-                          ],
-                        );
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return alert;
-                          },
-                        );
-                      } else {
-                        _passwordController.clear();
-                        _confirmPasswordController.clear();
-                        AlertDialog alert = AlertDialog(
-                          title: Text("Error"),
-                          content: Text("Password doesn't match."),
-                          actions: [
-                            TextButton(
-                              child: Text("OK"),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => lec_dashboard()),
-                                );
-                              },
-                            ),
-                          ],
-                        );
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return alert;
-                          },
-                        );
-                      }
-
-                      //adduser(username, email, mobile, address, dob);
-                    },
-                    child: Text(
-                      'Sign up',
+                    label: const Text(
+                      'Add New Gem',
                       style: TextStyle(
-                        fontSize: 25.0,
-                        fontWeight: FontWeight.bold,
+                        color: Colors.purple,
                       ),
                     ),
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor:
+                          const MaterialStatePropertyAll(Colors.white),
+                      elevation: const MaterialStatePropertyAll(5.0),
+                      shape: MaterialStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                        ),
+                      ),
+                    ),
+                  ),*/
+                  TextFormField(
+                    controller: c1,
+                    onChanged: (value) {
+                      title = value;
+                    },
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.people,
+                      ),
+                      labelText: 'Title',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+
+                  ///date
+                  TextFormField(
+                    controller: c2,
+                    onChanged: (value) {
+                      date = value;
+                    },
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.date_range,
+                      ),
+                      labelText: 'Date',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+
+                  ///descrption
+                  TextFormField(
+                    controller: c3,
+                    onChanged: (value) {
+                      description = value;
+                    },
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(
+                        Icons.type_specimen,
+                      ),
+                      labelText: 'Description',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+
+                  ///ddddddddddddddddddddddd
+
+                  Row(
+                    children: [
+                      Expanded(
+                        child: BottomButton(
+                          label: 'Back',
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 8.0,
+                      ),
+                      Expanded(
+                        child: BottomButton(
+                          label: 'Submit',
+                          onPressed: () {
+                            addnwevent();
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -373,6 +272,63 @@ class _neweventState extends State<newevent> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class BottomButton extends StatelessWidget {
+  const BottomButton({super.key, required this.label, this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ButtonStyle(
+        backgroundColor: const MaterialStatePropertyAll(Colors.purple),
+        elevation: const MaterialStatePropertyAll(5.0),
+        shape: MaterialStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+          ),
+        ),
+      ),
+      child: Text(
+        label,
+      ),
+    );
+  }
+}
+
+class UserInputs extends StatelessWidget {
+  const UserInputs(
+      {super.key,
+      this.hintText,
+      this.errorMessage,
+      this.onSaved,
+      this.controller});
+
+  final String? hintText;
+  final String? errorMessage;
+  final void Function(String? value)? onSaved;
+  final TextEditingController? controller;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hintText,
+      ),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return errorMessage;
+        }
+        return null;
+      },
+      onSaved: onSaved,
     );
   }
 }
